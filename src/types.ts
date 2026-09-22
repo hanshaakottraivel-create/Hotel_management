@@ -164,3 +164,44 @@ export interface ChatMessage {
     payload?: any;
   }[];
 }
+
+export interface DbStatus {
+  connected: boolean;
+  provider: "supabase_postgresql" | "local_memory" | "local_resilient_store";
+  loading: boolean;
+  message?: string;
+  supabaseUrl?: string;
+  counts?: {
+    rooms?: number;
+    bookings?: number;
+    guests?: number;
+    staff?: number;
+    tasks?: number;
+    payments?: number;
+    activities?: number;
+  };
+}
+
+export type ReportType = "executive-daily" | "revenue-yield" | "housekeeping-turnover" | "guest-vip";
+
+export interface ReportActionItem {
+  department: string;
+  action: string;
+  priority: "High" | "Medium" | "Low";
+  timeline?: string;
+}
+
+export interface AiGeneratedReport {
+  id?: string;
+  title: string;
+  reportType: ReportType;
+  timeframe: "today" | "week" | "month";
+  generatedAt: string;
+  source: "gemini" | "fallback";
+  model: string;
+  summary: string;
+  keyFindings: string[];
+  actionItems: ReportActionItem[];
+  strategicAdvice: string;
+}
+

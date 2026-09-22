@@ -1,5 +1,6 @@
 import React from "react";
 import { useHotel } from "../context/HotelContext";
+import { AiReportGenerator } from "./AiReportGenerator";
 import {
   BarChart3,
   TrendingUp,
@@ -185,6 +186,9 @@ export const AnalyticsView: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Interactive AI Executive Report & Operational Summary Generator */}
+      <AiReportGenerator initialReportType="revenue-yield" />
 
       {/* AI Revenue Strategy Box */}
       <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 border border-indigo-900 shadow-md">

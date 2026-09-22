@@ -9,6 +9,7 @@ import {
   HotelActivity,
   RoomStatus,
   TaskStatus,
+  DbStatus,
 } from "../types";
 import {
   INITIAL_ROOMS,
@@ -92,6 +93,8 @@ interface HotelContextType {
   addPayment: (payment: Omit<PaymentTransaction, "id" | "date">) => void;
   recordPayment: (payment: any) => void;
   resetToDemo: () => void;
+  dbStatus: DbStatus;
+  syncDatabase: () => Promise<void>;
 
   toasts: ToastNotification[];
   showToast: (message: string, type?: "success" | "info" | "warning" | "error") => void;
@@ -156,6 +159,81 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return saved ? JSON.parse(saved) : INITIAL_ACTIVITIES;
   });
 
+  const [dbStatus, setDbStatus] = useState<DbStatus>({
+    connected: false,
+    provider: "local_memory",
+    loading: true,
+  });
+
+  // Synchronize state with backend API / Supabase PostgreSQL
+  const syncDatabase = async () => {
+    try {
+      setDbStatus((prev) => ({ ...prev, loading: true }));
+      const [
+        statusRes,
+        roomsRes,
+        bookingsRes,
+        guestsRes,
+        staffRes,
+        tasksRes,
+        paymentsRes,
+        activitiesRes,
+      ] = await Promise.allSettled([
+        fetch("/api/db/status").then((r) => r.json()),
+        fetch("/api/rooms").then((r) => r.json()),
+        fetch("/api/bookings").then((r) => r.json()),
+        fetch("/api/guests").then((r) => r.json()),
+        fetch("/api/staff").then((r) => r.json()),
+        fetch("/api/tasks").then((r) => r.json()),
+        fetch("/api/payments").then((r) => r.json()),
+        fetch("/api/activities").then((r) => r.json()),
+      ]);
+
+      if (statusRes.status === "fulfilled" && statusRes.value) {
+        setDbStatus({
+          connected: Boolean(statusRes.value.connected),
+          provider: statusRes.value.provider || "local_memory",
+          loading: false,
+          supabaseUrl: statusRes.value.supabaseUrl,
+          message: statusRes.value.message,
+          counts: statusRes.value.counts,
+        });
+      } else {
+        setDbStatus((prev) => ({ ...prev, loading: false }));
+      }
+
+      if (roomsRes.status === "fulfilled" && Array.isArray(roomsRes.value) && roomsRes.value.length > 0) {
+        setRooms(roomsRes.value);
+      }
+      if (bookingsRes.status === "fulfilled" && Array.isArray(bookingsRes.value) && bookingsRes.value.length > 0) {
+        setBookings(bookingsRes.value);
+      }
+      if (guestsRes.status === "fulfilled" && Array.isArray(guestsRes.value) && guestsRes.value.length > 0) {
+        setGuests(guestsRes.value);
+      }
+      if (staffRes.status === "fulfilled" && Array.isArray(staffRes.value) && staffRes.value.length > 0) {
+        setStaff(staffRes.value);
+      }
+      if (tasksRes.status === "fulfilled" && Array.isArray(tasksRes.value) && tasksRes.value.length > 0) {
+        setTasks(tasksRes.value);
+      }
+      if (paymentsRes.status === "fulfilled" && Array.isArray(paymentsRes.value) && paymentsRes.value.length > 0) {
+        setPayments(paymentsRes.value);
+      }
+      if (activitiesRes.status === "fulfilled" && Array.isArray(activitiesRes.value) && activitiesRes.value.length > 0) {
+        setActivities(activitiesRes.value);
+      }
+    } catch (err) {
+      console.error("Database sync error:", err);
+      setDbStatus((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Initial fetch from backend / Supabase
+  useEffect(() => {
+    syncDatabase();
+  }, []);
+
   // Save to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(rooms));
@@ -194,16 +272,20 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addActivity = (type: HotelActivity["type"], message: string, badgeColor: string = "blue") => {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    setActivities((prev) => [
-      {
-        id: "act-" + Date.now(),
-        timestamp: timeStr,
-        type,
-        message,
-        badgeColor,
-      },
-      ...prev.slice(0, 30),
-    ]);
+    const newAct: HotelActivity = {
+      id: "act-" + Date.now(),
+      timestamp: timeStr,
+      type,
+      message,
+      badgeColor,
+    };
+    setActivities((prev) => [newAct, ...prev.slice(0, 29)]);
+
+    fetch("/api/activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newAct),
+    }).catch((err) => console.warn("Activity sync error:", err));
   };
 
   // Metrics
@@ -258,6 +340,16 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const badge = status === "Vacant Clean" ? "emerald" : status === "Occupied" ? "blue" : status === "Vacant Dirty" ? "amber" : "rose";
     addActivity("room-status", `Room ${targetRoom?.roomNumber || roomId} status set to ${status}`, badge);
     showToast(`Room ${targetRoom?.roomNumber || roomId} marked as ${status}`);
+
+    // Sync to backend / Supabase
+    fetch(`/api/rooms/${roomId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status,
+        housekeepingNotes: notes !== undefined ? notes : targetRoom?.housekeepingNotes,
+      }),
+    }).catch((err) => console.warn("Sync room status error:", err));
   };
 
   const updateRoomRate = (roomId: string, newRate: number) => {
@@ -266,6 +358,13 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
     const targetRoom = rooms.find((r) => r.id === roomId);
     showToast(`Room ${targetRoom?.roomNumber} rate updated to $${newRate}/night`);
+
+    // Sync to backend / Supabase
+    fetch(`/api/rooms/${roomId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ratePerNight: newRate }),
+    }).catch((err) => console.warn("Sync room rate error:", err));
   };
 
   const addRoom = (newRoomData: Omit<Room, "id">) => {
@@ -273,11 +372,25 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newRoom: Room = { ...newRoomData, id };
     setRooms((prev) => [...prev, newRoom]);
     showToast(`Room ${newRoom.roomNumber} added successfully`);
+
+    // Sync to backend / Supabase
+    fetch(`/api/rooms`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newRoom),
+    }).catch((err) => console.warn("Sync add room error:", err));
   };
 
   const editRoom = (roomId: string, updates: Partial<Room>) => {
     setRooms((prev) => prev.map((r) => (r.id === roomId ? { ...r, ...updates } : r)));
     showToast("Room updated successfully");
+
+    // Sync to backend / Supabase
+    fetch(`/api/rooms/${roomId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    }).catch((err) => console.warn("Sync edit room error:", err));
   };
 
   const checkInBooking = (bookingId: string) => {
@@ -304,6 +417,26 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     addActivity("check-in", `Guest ${booking.guestName} checked in to Room ${booking.roomNumber}`, "emerald");
     showToast(`${booking.guestName} checked in to Room ${booking.roomNumber}`);
+
+    // Sync to backend / Supabase
+    fetch(`/api/bookings/${bookingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Checked-In" }),
+    }).catch((err) => console.warn("Sync booking check-in error:", err));
+
+    const targetRoom = rooms.find((r) => r.id === booking.roomId || r.roomNumber === booking.roomNumber);
+    if (targetRoom) {
+      fetch(`/api/rooms/${targetRoom.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "Occupied",
+          currentBookingId: booking.id,
+          currentGuestName: booking.guestName,
+        }),
+      }).catch((err) => console.warn("Sync room check-in error:", err));
+    }
   };
 
   const checkOutBooking = (bookingId: string) => {
@@ -331,23 +464,48 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Add turnover task
     const taskId = "tsk-" + Date.now();
-    setTasks((prev) => [
-      {
-        id: taskId,
-        title: `Turnover Room ${booking.roomNumber} after checkout`,
-        roomNumber: booking.roomNumber,
-        category: "Housekeeping",
-        priority: "High",
-        status: "Pending",
-        dueTime: "15:00",
-        aiPriorityScore: 89,
-        aiRationale: `Fresh departure on ${booking.roomNumber}. Clean before afternoon check-ins.`,
-      },
-      ...prev,
-    ]);
+    const newTask: HotelTask = {
+      id: taskId,
+      title: `Turnover Room ${booking.roomNumber} after checkout`,
+      roomNumber: booking.roomNumber,
+      category: "Housekeeping",
+      priority: "High",
+      status: "Pending",
+      dueTime: "15:00",
+      aiPriorityScore: 89,
+      aiRationale: `Fresh departure on ${booking.roomNumber}. Clean before afternoon check-ins.`,
+    };
+    setTasks((prev) => [newTask, ...prev]);
 
     addActivity("check-out", `Guest ${booking.guestName} checked out from Room ${booking.roomNumber}`, "blue");
     showToast(`${booking.guestName} checked out. Room ${booking.roomNumber} queued for housekeeping.`);
+
+    // Sync to backend / Supabase
+    fetch(`/api/bookings/${bookingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Checked-Out" }),
+    }).catch((err) => console.warn("Sync booking checkout error:", err));
+
+    const targetRoom = rooms.find((r) => r.id === booking.roomId || r.roomNumber === booking.roomNumber);
+    if (targetRoom) {
+      fetch(`/api/rooms/${targetRoom.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "Vacant Dirty",
+          currentBookingId: null,
+          currentGuestName: null,
+          housekeepingNotes: "Checkout today. Requires full turnover.",
+        }),
+      }).catch((err) => console.warn("Sync room checkout error:", err));
+    }
+
+    fetch(`/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTask),
+    }).catch((err) => console.warn("Sync checkout task error:", err));
   };
 
   const cancelBooking = (bookingId: string) => {
@@ -366,10 +524,21 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             : r
         )
       );
+      fetch(`/api/rooms/${booking.roomId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "Vacant Clean", currentBookingId: null, currentGuestName: null }),
+      }).catch((err) => console.warn("Sync cancel room error:", err));
     }
 
     addActivity("booking", `Reservation ${booking.id} cancelled for ${booking.guestName}`, "rose");
     showToast(`Reservation ${booking.id} cancelled`, "info");
+
+    fetch(`/api/bookings/${bookingId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "Cancelled" }),
+    }).catch((err) => console.warn("Sync cancel booking error:", err));
   };
 
   const createBooking = (bookingData: Omit<Booking, "id" | "createdAt">): Booking => {
@@ -401,24 +570,51 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Add payment transaction
     if (newBooking.paidAmount > 0) {
       const paymentId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
-      setPayments((prev) => [
-        {
-          id: paymentId,
-          reservationId: id,
-          guestName: newBooking.guestName,
-          roomNumber: newBooking.roomNumber,
-          amount: newBooking.paidAmount,
-          type: "Room Charge",
-          method: "Credit Card",
-          date: new Date().toISOString().replace("T", " ").substring(0, 16),
-          status: "Completed",
-        },
-        ...prev,
-      ]);
+      const newPayment: PaymentTransaction = {
+        id: paymentId,
+        reservationId: id,
+        guestName: newBooking.guestName,
+        roomNumber: newBooking.roomNumber,
+        amount: newBooking.paidAmount,
+        type: "Room Charge",
+        method: "Credit Card",
+        date: new Date().toISOString().replace("T", " ").substring(0, 16),
+        status: "Completed",
+      };
+      setPayments((prev) => [newPayment, ...prev]);
+
+      fetch("/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPayment),
+      }).catch((err) => console.warn("Sync payment error:", err));
     }
 
     addActivity("booking", `New reservation ${id} for ${newBooking.guestName} (${newBooking.roomType})`, "blue");
     showToast(`Booking ${id} confirmed for ${newBooking.guestName}`);
+
+    // Sync to backend / Supabase
+    fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newBooking),
+    }).catch((err) => console.warn("Sync create booking error:", err));
+
+    if (newBooking.status === "Checked-In") {
+      const targetRoom = rooms.find((r) => r.id === newBooking.roomId || r.roomNumber === newBooking.roomNumber);
+      if (targetRoom) {
+        fetch(`/api/rooms/${targetRoom.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "Occupied",
+            currentBookingId: id,
+            currentGuestName: newBooking.guestName,
+          }),
+        }).catch((err) => console.warn("Sync room checkin error:", err));
+      }
+    }
+
     return newBooking;
   };
 
@@ -427,12 +623,27 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newGuest: Guest = { ...guestData, id };
     setGuests((prev) => [...prev, newGuest]);
     showToast(`Guest profile created for ${newGuest.name}`);
+
+    // Sync to backend / Supabase
+    fetch("/api/guests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newGuest),
+    }).catch((err) => console.warn("Sync guest error:", err));
+
     return newGuest;
   };
 
   const updateGuest = (guestId: string, updates: Partial<Guest>) => {
     setGuests((prev) => prev.map((g) => (g.id === guestId ? { ...g, ...updates } : g)));
     showToast("Guest profile updated");
+
+    // Sync to backend / Supabase
+    fetch(`/api/guests/${guestId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    }).catch((err) => console.warn("Sync update guest error:", err));
   };
 
   const addTask = (taskData: Omit<HotelTask, "id">) => {
@@ -441,6 +652,13 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTasks((prev) => [newTask, ...prev]);
     addActivity("task", `New task added: ${newTask.title}`, "amber");
     showToast(`Task assigned: ${newTask.title}`);
+
+    // Sync to backend / Supabase
+    fetch("/api/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTask),
+    }).catch((err) => console.warn("Sync task error:", err));
   };
 
   const updateTaskStatus = (taskId: string, status: TaskStatus) => {
@@ -458,14 +676,36 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               : r
           )
         );
+        const targetRoom = rooms.find((r) => r.roomNumber === target.roomNumber);
+        if (targetRoom) {
+          fetch(`/api/rooms/${targetRoom.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "Vacant Clean", housekeepingNotes: "Cleaned and sanitized" }),
+          }).catch((err) => console.warn("Sync room clean error:", err));
+        }
       }
       showToast(`Task completed: ${target?.title || "Work order"}`);
     }
+
+    // Sync to backend / Supabase
+    fetch(`/api/tasks/${taskId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    }).catch((err) => console.warn("Sync task status error:", err));
   };
 
   const applyAiPrioritizedTasks = (newTasks: HotelTask[]) => {
     setTasks(newTasks);
     showToast("Tasks prioritized using AI Operations Assistant", "info");
+
+    // Sync batch to backend / Supabase
+    fetch("/api/tasks/batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tasks: newTasks }),
+    }).catch((err) => console.warn("Sync batch tasks error:", err));
   };
 
   const addPayment = (paymentData: Omit<PaymentTransaction, "id" | "date">) => {
@@ -478,6 +718,13 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setPayments((prev) => [newTx, ...prev]);
     addActivity("payment", `Payment $${newTx.amount} processed for ${newTx.guestName}`, "emerald");
     showToast(`Payment of $${newTx.amount} processed`);
+
+    // Sync to backend / Supabase
+    fetch("/api/payments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTx),
+    }).catch((err) => console.warn("Sync payment error:", err));
   };
 
   const resetToDemo = () => {
@@ -496,6 +743,11 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setPayments(INITIAL_PAYMENTS);
     setActivities(INITIAL_ACTIVITIES);
     showToast("Reset to initial demo data", "info");
+
+    // Sync reset to backend / Supabase
+    fetch("/api/db/reset", { method: "POST" })
+      .then(() => syncDatabase())
+      .catch((err) => console.warn("Reset backend DB error:", err));
   };
 
   return (
@@ -553,6 +805,8 @@ export const HotelProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addPayment,
         recordPayment: addPayment,
         resetToDemo,
+        dbStatus,
+        syncDatabase,
 
         toasts,
         showToast,

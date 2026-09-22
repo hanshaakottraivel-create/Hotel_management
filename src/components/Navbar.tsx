@@ -9,6 +9,8 @@ import {
   Calendar,
   RotateCcw,
   Check,
+  Database,
+  RefreshCw,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -23,6 +25,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
     occupancyRate,
     activities,
     resetToDemo,
+    dbStatus,
+    syncDatabase,
   } = useHotel();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -66,6 +70,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <span className="font-medium text-slate-700">{occupancyRate}% Occupied</span>
           </span>
+        </div>
+
+        {/* Database Status indicator */}
+        <div
+          id="badge-db-status"
+          className="hidden 2xl:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-600"
+          title={dbStatus.message || (dbStatus.connected ? "Connected to Supabase PostgreSQL" : "Local Database Mode")}
+        >
+          <span className={`w-2 h-2 rounded-full ${dbStatus.connected ? "bg-emerald-500" : "bg-blue-500"}`} />
+          <Database className="w-3 h-3 text-slate-400" />
+          <span className="font-medium text-slate-700">
+            {dbStatus.connected ? "Supabase PostgreSQL" : "PostgreSQL Store"}
+          </span>
+          <button
+            onClick={() => syncDatabase()}
+            className="text-slate-400 hover:text-slate-700 transition-colors ml-0.5"
+            title="Sync Database"
+            aria-label="Sync Database"
+          >
+            <RefreshCw className={`w-3 h-3 ${dbStatus.loading ? "animate-spin text-indigo-600" : ""}`} />
+          </button>
         </div>
       </div>
 
@@ -143,6 +168,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
                   </div>
                 ))}
               </div>
+              <div className="px-4 py-2 bg-slate-50 border-y border-slate-100 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 text-slate-600">
+                  <Database className="w-3.5 h-3.5 text-slate-400" />
+                  <span>DB: <strong className="font-semibold text-slate-800">{dbStatus.connected ? "Supabase PostgreSQL" : "Local PostgreSQL Store"}</strong></span>
+                </div>
+                <button
+                  onClick={() => syncDatabase()}
+                  className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-medium"
+                >
+                  <RefreshCw className={`w-3 h-3 ${dbStatus.loading ? "animate-spin" : ""}`} />
+                  Sync Now
+                </button>
+              </div>
+
               <div className="px-4 pt-2 border-t border-slate-100 flex items-center justify-between">
                 <button
                   onClick={() => {
