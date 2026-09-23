@@ -150,37 +150,47 @@ export const AiAssistantDrawer: React.FC<AiAssistantProps> = ({ mode = "drawer" 
   if (mode === "drawer" && !isAiDrawerOpen) return null;
 
   return (
-    <div
-      className={
-        mode === "drawer"
-          ? "fixed inset-y-0 right-0 w-full sm:w-[480px] bg-white shadow-2xl border-l border-slate-200 z-50 flex flex-col animate-in slide-in-from-right duration-200"
-          : "bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-140px)]"
-      }
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 to-indigo-950 text-white">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-xs">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <h3 className="font-bold text-sm text-white">Aura AI Copilot</h3>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            </div>
-            <p className="text-[10px] text-slate-300">Live Hotel Operations Intelligence</p>
-          </div>
-        </div>
+    <>
+      {/* Mobile backdrop when open in drawer mode */}
+      {mode === "drawer" && (
+        <div
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 transition-opacity animate-in fade-in duration-200"
+          onClick={() => setIsAiDrawerOpen(false)}
+        />
+      )}
 
-        {mode === "drawer" && (
-          <button
-            onClick={() => setIsAiDrawerOpen(false)}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+      <div
+        className={
+          mode === "drawer"
+            ? "fixed inset-y-0 right-0 w-full sm:w-[480px] bg-white shadow-2xl border-l border-slate-200 z-50 flex flex-col animate-in slide-in-from-right duration-200"
+            : "bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col h-[calc(100vh-140px)]"
+        }
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-slate-900 to-indigo-950 text-white">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-xs">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className="font-bold text-sm text-white">Aura AI Copilot</h3>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              </div>
+              <p className="text-[10px] text-slate-300">Live Hotel Operations Intelligence</p>
+            </div>
+          </div>
+
+          {mode === "drawer" && (
+            <button
+              onClick={() => setIsAiDrawerOpen(false)}
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors"
+              aria-label="Close AI Copilot"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
       {/* Quick Action Buttons */}
       <div className="p-3 bg-slate-50 border-b border-slate-200 grid grid-cols-2 gap-2 text-xs">
@@ -309,17 +319,19 @@ export const AiAssistantDrawer: React.FC<AiAssistantProps> = ({ mode = "drawer" 
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask Aura to manage bookings, organize rooms, prioritize tasks..."
             disabled={isLoading}
-            className="flex-1 px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+            className="flex-1 px-3.5 py-2.5 text-sm sm:text-xs min-h-[44px] rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-colors shadow-xs"
+            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition-colors shadow-xs active:scale-95 shrink-0"
+            aria-label="Send query"
           >
             <Send className="w-4 h-4" />
           </button>
         </form>
       </div>
     </div>
+    </>
   );
 };

@@ -50,17 +50,17 @@ export const RoomDetailsModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4"
       onClick={() => setSelectedRoomId(null)}
     >
       <div
-        className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+        className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center">
+            <span className="w-10 h-10 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center shrink-0">
               {room.roomNumber}
             </span>
             <div>
@@ -71,16 +71,17 @@ export const RoomDetailsModal: React.FC = () => {
 
           <button
             onClick={() => setSelectedRoomId(null)}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+            className="text-slate-400 hover:text-slate-600 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl"
+            aria-label="Close"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
           {/* Status & Rate Bar */}
-          <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200 gap-2">
             <div>
               <span className="text-[10px] text-slate-400 uppercase font-semibold">Current State</span>
               <div className="mt-0.5">
@@ -109,11 +110,11 @@ export const RoomDetailsModal: React.FC = () => {
                       type="number"
                       value={editRate}
                       onChange={(e) => setEditRate(Number(e.target.value))}
-                      className="w-16 px-1.5 py-0.5 text-xs rounded border border-indigo-300"
+                      className="w-20 px-2 py-1 text-sm sm:text-xs rounded-lg border border-indigo-300 min-h-[36px]"
                     />
                     <button
                       onClick={handleSaveRate}
-                      className="text-[11px] px-2 py-0.5 bg-indigo-600 text-white rounded font-medium"
+                      className="text-xs px-2.5 py-1 min-h-[36px] bg-indigo-600 active:bg-indigo-700 text-white rounded-lg font-medium"
                     >
                       Save
                     </button>
@@ -121,7 +122,7 @@ export const RoomDetailsModal: React.FC = () => {
                 ) : (
                   <button
                     onClick={() => setEditRate(room.ratePerNight)}
-                    className="font-bold text-sm text-slate-900 hover:text-indigo-600"
+                    className="font-bold text-sm text-slate-900 hover:text-indigo-600 py-1"
                   >
                     ${room.ratePerNight}/night
                   </button>
@@ -138,10 +139,10 @@ export const RoomDetailsModal: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
               <button
                 onClick={() => updateRoomStatus(room.id, "Vacant Clean", "Inspected & ready")}
-                className={`py-2 px-2.5 rounded-xl border text-center font-medium transition-all ${
+                className={`min-h-[42px] py-2 px-2.5 rounded-xl border text-center font-medium transition-all active:scale-98 ${
                   room.status === "Vacant Clean"
-                    ? "bg-emerald-600 text-white border-emerald-600 font-bold"
-                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                    ? "bg-emerald-600 text-white border-emerald-600 font-bold shadow-xs"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100"
                 }`}
               >
                 Vacant Clean
@@ -149,10 +150,10 @@ export const RoomDetailsModal: React.FC = () => {
 
               <button
                 onClick={() => updateRoomStatus(room.id, "Vacant Dirty")}
-                className={`py-2 px-2.5 rounded-xl border text-center font-medium transition-all ${
+                className={`min-h-[42px] py-2 px-2.5 rounded-xl border text-center font-medium transition-all active:scale-98 ${
                   room.status === "Vacant Dirty"
-                    ? "bg-amber-500 text-white border-amber-500 font-bold"
-                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                    ? "bg-amber-500 text-white border-amber-500 font-bold shadow-xs"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100"
                 }`}
               >
                 Vacant Dirty
@@ -160,10 +161,10 @@ export const RoomDetailsModal: React.FC = () => {
 
               <button
                 onClick={() => updateRoomStatus(room.id, "Occupied")}
-                className={`py-2 px-2.5 rounded-xl border text-center font-medium transition-all ${
+                className={`min-h-[42px] py-2 px-2.5 rounded-xl border text-center font-medium transition-all active:scale-98 ${
                   room.status === "Occupied"
-                    ? "bg-blue-600 text-white border-blue-600 font-bold"
-                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                    ? "bg-blue-600 text-white border-blue-600 font-bold shadow-xs"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100"
                 }`}
               >
                 Occupied
@@ -171,10 +172,10 @@ export const RoomDetailsModal: React.FC = () => {
 
               <button
                 onClick={() => updateRoomStatus(room.id, "Maintenance", "Flagged for maintenance inspection")}
-                className={`py-2 px-2.5 rounded-xl border text-center font-medium transition-all ${
+                className={`min-h-[42px] py-2 px-2.5 rounded-xl border text-center font-medium transition-all active:scale-98 ${
                   room.status === "Maintenance"
-                    ? "bg-rose-600 text-white border-rose-600 font-bold"
-                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                    ? "bg-rose-600 text-white border-rose-600 font-bold shadow-xs"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100"
                 }`}
               >
                 Maintenance
@@ -192,7 +193,7 @@ export const RoomDetailsModal: React.FC = () => {
                     setSelectedRoomId(null);
                     setSelectedBookingId(activeBooking.id);
                   }}
-                  className="text-blue-700 font-semibold hover:underline"
+                  className="text-blue-700 font-semibold hover:underline min-h-[36px] flex items-center"
                 >
                   View Folio &rarr;
                 </button>
@@ -225,7 +226,7 @@ export const RoomDetailsModal: React.FC = () => {
               {room.amenities.map((amenity, idx) => (
                 <span
                   key={idx}
-                  className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-medium"
+                  className="text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-medium"
                 >
                   {amenity}
                 </span>
@@ -235,10 +236,10 @@ export const RoomDetailsModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end">
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end shrink-0">
           <button
             onClick={() => setSelectedRoomId(null)}
-            className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
+            className="w-full sm:w-auto min-h-[42px] px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-white text-xs font-semibold transition-colors"
           >
             Close
           </button>

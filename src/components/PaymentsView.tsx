@@ -13,6 +13,7 @@ import {
   ArrowDownRight,
   ShieldCheck,
   Download,
+  X,
 } from "lucide-react";
 
 export const PaymentsView: React.FC = () => {
@@ -140,23 +141,23 @@ export const PaymentsView: React.FC = () => {
 
       {/* Filters & Search */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+        <div className="relative flex-1 min-w-[200px] w-full sm:w-auto sm:max-w-sm">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search payment by guest, booking, ID..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full pl-9 pr-3 py-2 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
-          <span>Payment Method:</span>
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 w-full sm:w-auto">
+          <span className="shrink-0">Method:</span>
           <select
             value={methodFilter}
             onChange={(e) => setMethodFilter(e.target.value)}
-            className="text-xs py-1.5 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-hidden"
+            className="flex-1 sm:flex-initial text-xs py-2 px-3 min-h-[42px] rounded-xl border border-slate-200 bg-slate-50 text-slate-800 focus:outline-hidden"
           >
             <option value="All">All Payment Methods</option>
             <option value="Credit Card">Credit Card</option>
@@ -167,8 +168,8 @@ export const PaymentsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Transactions Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      {/* Transactions Table for Desktop */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
@@ -236,27 +237,86 @@ export const PaymentsView: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Card List for Transactions */}
+      <div className="block md:hidden space-y-3">
+        {filteredPayments.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-400">
+            No payment records found.
+          </div>
+        ) : (
+          filteredPayments.map((p) => (
+            <div
+              key={p.id}
+              className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 space-y-3"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="font-bold text-sm text-slate-900">{p.guestName}</div>
+                  <div className="text-[11px] text-indigo-600 font-mono mt-0.5">
+                    {p.reservationId} • Room {p.roomNumber}
+                  </div>
+                </div>
+                <span
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                    p.status === "Completed"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : p.status === "Pending"
+                      ? "bg-amber-100 text-amber-800"
+                      : "bg-rose-100 text-rose-800"
+                  }`}
+                >
+                  {p.status}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-slate-100">
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Amount</span>
+                  <span className="font-bold text-slate-900 text-sm">${p.amount.toLocaleString()}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Method & Type</span>
+                  <span className="text-slate-700 font-medium truncate block">{p.method} • {p.type}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+                <span className="font-mono text-[11px]">{p.id} • {p.date}</span>
+                <button
+                  onClick={() => handlePrintReceipt(p)}
+                  className="min-h-[40px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Receipt</span>
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {/* Record Payment Modal */}
       {isRecordModalOpen && (
         <div
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150"
           onClick={() => setIsRecordModalOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 border-b border-slate-200 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900">Record Folio Transaction</h3>
               <button
                 onClick={() => setIsRecordModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-semibold"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 active:bg-slate-100 transition-colors"
+                aria-label="Close"
               >
-                Cancel
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleRecordSubmit} className="p-4 space-y-3.5">
+            <form onSubmit={handleRecordSubmit} className="p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Associate Reservation
@@ -264,7 +324,7 @@ export const PaymentsView: React.FC = () => {
                 <select
                   value={selectedBookingId}
                   onChange={(e) => setSelectedBookingId(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                 >
                   {bookings.map((b) => (
                     <option key={b.id} value={b.id}>
@@ -274,7 +334,7 @@ export const PaymentsView: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Amount ($)
@@ -285,7 +345,7 @@ export const PaymentsView: React.FC = () => {
                     required
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -295,7 +355,7 @@ export const PaymentsView: React.FC = () => {
                   <select
                     value={method}
                     onChange={(e) => setMethod(e.target.value as any)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                   >
                     <option value="Credit Card">Credit Card</option>
                     <option value="Apple Pay">Apple Pay</option>
@@ -312,7 +372,7 @@ export const PaymentsView: React.FC = () => {
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as any)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                 >
                   <option value="Room Charge">Room Charge</option>
                   <option value="Deposit">Deposit</option>
@@ -322,17 +382,17 @@ export const PaymentsView: React.FC = () => {
                 </select>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsRecordModalOpen(false)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold"
                 >
                   Process Settle
                 </button>

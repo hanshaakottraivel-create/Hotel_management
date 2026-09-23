@@ -22,6 +22,7 @@ import { BookingDetailsModal } from "./components/BookingDetailsModal";
 import { RoomDetailsModal } from "./components/RoomDetailsModal";
 import { GuestDetailsModal } from "./components/GuestDetailsModal";
 import { ToastContainer } from "./components/ToastContainer";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 
 const MainLayout: React.FC = () => {
   const { currentTab } = useHotel();
@@ -67,7 +68,13 @@ const MainLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-100/70 text-slate-900 flex flex-col font-sans antialiased">
       {/* Top Navbar */}
-      <Navbar onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)} />
+      <Navbar
+        onToggleMobileSidebar={() => setIsMobileMenuOpen((prev) => !prev)}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+      />
+
+      {/* Offline Status Alert */}
+      <OfflineIndicator />
 
       {/* Main Container */}
       <div className="flex-1 flex pt-16">

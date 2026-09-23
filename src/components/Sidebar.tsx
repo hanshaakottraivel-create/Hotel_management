@@ -68,7 +68,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
           {/* Mobile close button */}
           <div className="flex items-center justify-between lg:hidden mb-4 pb-2 border-b border-slate-800">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Navigation</span>
-            <button onClick={onCloseMobile} className="p-1 rounded text-slate-400 hover:text-white" aria-label="Close menu">
+            <button
+              onClick={onCloseMobile}
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white active:bg-slate-800"
+              aria-label="Close menu"
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -87,18 +91,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
                   key={item.id}
                   id={`nav-item-${item.id}`}
                   onClick={() => handleSelect(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  className={`w-full min-h-[44px] flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                     isActive
                       ? "bg-indigo-600 text-white shadow-sm font-semibold"
-                      : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                      : "text-slate-300 hover:bg-slate-800/80 hover:text-white active:bg-slate-800"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`} />
-                    <span>{item.label}</span>
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-white" : "text-slate-400"}`} />
+                    <span className="truncate">{item.label}</span>
                   </div>
                   {item.badge && (
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${item.badgeColor}`}>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${item.badgeColor}`}>
                       {item.badge}
                     </span>
                   )}

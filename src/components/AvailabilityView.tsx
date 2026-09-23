@@ -123,11 +123,17 @@ export const AvailabilityView: React.FC = () => {
 
       {/* Grid Timeline */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        {/* Mobile Swipe Hint */}
+        <div className="sm:hidden px-4 py-2 bg-indigo-50/80 border-b border-indigo-100 text-[11px] text-indigo-700 flex items-center justify-between">
+          <span>&larr; Swipe horizontally across 14-day tape chart &rarr;</span>
+          <span className="font-semibold text-indigo-900">Today: Sep 15</span>
+        </div>
+
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
             {/* Header: Dates */}
             <div className="grid grid-cols-[160px_repeat(14,1fr)] bg-slate-50 border-b border-slate-200 text-center text-xs">
-              <div className="p-3 text-left font-bold text-slate-700 border-r border-slate-200">
+              <div className="p-3 text-left font-bold text-slate-700 border-r border-slate-200 sticky left-0 bg-slate-50 z-20 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.08)]">
                 Room Number
               </div>
               {days.map((day) => {
@@ -171,8 +177,8 @@ export const AvailabilityView: React.FC = () => {
                   key={room.id}
                   className="grid grid-cols-[160px_repeat(14,1fr)] items-stretch hover:bg-slate-50/50 transition-colors"
                 >
-                  {/* Left Column: Room info */}
-                  <div className="p-3 border-r border-slate-200 flex flex-col justify-center">
+                  {/* Left Column: Room info (Sticky on horizontal scroll) */}
+                  <div className="p-3 border-r border-slate-200 flex flex-col justify-center sticky left-0 bg-white z-10 shadow-[2px_0_4px_-1px_rgba(0,0,0,0.08)]">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-slate-900 text-xs">Room {room.roomNumber}</span>
                       <span className="text-[10px] text-slate-400 font-mono">${room.ratePerNight}</span>

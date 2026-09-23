@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)"/>
+  <rect width="504" height="504" x="4" y="4" rx="104" fill="none" stroke="url(#goldGrad)" stroke-width="4" stroke-opacity="0.3"/>
+
+  <!-- 5 Hospitality Stars -->
+  <g fill="url(#goldGrad)" transform="translate(0, -10)">
+    <!-- Center star -->
+    <path d="M256,92 L262,108 L279,109 L266,120 L270,137 L256,127 L242,137 L246,120 L233,109 L250,108 Z" transform="scale(1.1) translate(-23, -12)"/>
+    <!-- Left stars -->
+    <path d="M214,102 L218,114 L231,115 L221,123 L224,136 L214,128 L204,136 L207,123 L197,115 L210,114 Z" transform="scale(0.9) translate(14, 10)"/>
+    <path d="M174,116 L177,126 L188,127 L179,134 L182,145 L174,138 L166,145 L169,134 L160,127 L171,126 Z" transform="scale(0.8) translate(38, 26)"/>
+    <!-- Right stars -->
+    <path d="M298,102 L302,114 L315,115 L305,123 L308,136 L298,128 L288,136 L291,123 L281,115 L294,114 Z" transform="scale(0.9) translate(40, 10)"/>
+    <path d="M338,116 L341,126 L352,127 L343,134 L346,145 L338,138 L330,145 L333,134 L324,127 L335,126 Z" transform="scale(0.8) translate(80, 26)"/>
+  </g>
+
+  <!-- Hotel Pediment (Roof Triangular Gable) -->
+  <path d="M256 160 L140 216 L372 216 Z" fill="url(#goldGrad)"/>
+  <rect x="130" y="216" width="252" height="14" rx="3" fill="url(#goldGrad)"/>
+
+  <!-- Pillars / Classical Columns -->
+  <!-- Column 1 -->
+  <rect x="156" y="238" width="22" height="136" rx="4" fill="url(#goldGrad)"/>
+  <rect x="150" y="234" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+  <rect x="150" y="370" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+
+  <!-- Column 2 -->
+  <rect x="206" y="238" width="22" height="136" rx="4" fill="url(#goldGrad)"/>
+  <rect x="200" y="234" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+  <rect x="200" y="370" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+
+  <!-- Column 3 -->
+  <rect x="284" y="238" width="22" height="136" rx="4" fill="url(#goldGrad)"/>
+  <rect x="278" y="234" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+  <rect x="278" y="370" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+
+  <!-- Column 4 -->
+  <rect x="334" y="238" width="22" height="136" rx="4" fill="url(#goldGrad)"/>
+  <rect x="328" y="234" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+  <rect x="328" y="370" width="34" height="8" rx="2" fill="url(#goldGrad)"/>
+
+  <!-- Grand Arched Entrance in Center -->
+  <path d="M240 378 L240 290 A 16 16 0 0 1 272 290 L272 378 Z" fill="url(#accentGrad)"/>
+  <circle cx="264" cy="336" r="3" fill="#fbbf24"/>
+
+  <!-- Hotel Base Podium Steps -->
+  <rect x="124" y="380" width="264" height="14" rx="3" fill="url(#goldGrad)"/>
+  <rect x="108" y="396" width="296" height="16" rx="4" fill="url(#goldGrad)"/>
+  <rect x="92" y="414" width="328" height="16" rx="4" fill="url(#goldGrad)" opacity="0.9"/>
+</svg>

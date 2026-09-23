@@ -14,6 +14,7 @@ import {
   Filter,
   ArrowUpDown,
   AlertTriangle,
+  X,
 } from "lucide-react";
 
 export const StaffTasksView: React.FC = () => {
@@ -325,20 +326,20 @@ export const StaffTasksView: React.FC = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                  <div className="flex items-center gap-2 self-stretch md:self-auto justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
                     {!isCompleted && (
                       <>
                         {isInProgress ? (
                           <button
                             onClick={() => updateTaskStatus(task.id, "Completed")}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+                            className="flex-1 md:flex-initial min-h-[40px] px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Complete
+                            <CheckCircle2 className="w-4 h-4" /> Complete Work
                           </button>
                         ) : (
                           <button
                             onClick={() => updateTaskStatus(task.id, "In Progress")}
-                            className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition-colors"
+                            className="flex-1 md:flex-initial min-h-[40px] px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 text-indigo-700 text-xs font-semibold flex items-center justify-center transition-colors"
                           >
                             Start Work
                           </button>
@@ -347,8 +348,8 @@ export const StaffTasksView: React.FC = () => {
                     )}
 
                     {isCompleted && (
-                      <span className="px-3 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 rounded-lg flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Done
+                      <span className="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-xl flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Completed
                       </span>
                     )}
                   </div>
@@ -362,24 +363,25 @@ export const StaffTasksView: React.FC = () => {
       {/* Add Task Modal */}
       {isAddTaskOpen && (
         <div
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150"
           onClick={() => setIsAddTaskOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 border-b border-slate-200 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900">Dispatch Work Order</h3>
               <button
                 onClick={() => setIsAddTaskOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-semibold"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 active:bg-slate-100 transition-colors"
+                aria-label="Close"
               >
-                Cancel
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateTask} className="p-4 space-y-3.5">
+            <form onSubmit={handleCreateTask} className="p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Task Title
@@ -390,11 +392,11 @@ export const StaffTasksView: React.FC = () => {
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
                   placeholder="e.g. Deep clean carpet in Room 402"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Room # (Optional)
@@ -404,7 +406,7 @@ export const StaffTasksView: React.FC = () => {
                     value={taskRoomNumber}
                     onChange={(e) => setTaskRoomNumber(e.target.value)}
                     placeholder="e.g. 304"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -414,7 +416,7 @@ export const StaffTasksView: React.FC = () => {
                   <select
                     value={taskCategory}
                     onChange={(e) => setTaskCategory(e.target.value as TaskCategory)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                   >
                     <option value="Housekeeping">Housekeeping</option>
                     <option value="Maintenance">Maintenance</option>
@@ -424,7 +426,7 @@ export const StaffTasksView: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Priority
@@ -432,7 +434,7 @@ export const StaffTasksView: React.FC = () => {
                   <select
                     value={taskPriority}
                     onChange={(e) => setTaskPriority(e.target.value as TaskPriority)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                   >
                     <option value="Urgent">Urgent</option>
                     <option value="High">High</option>
@@ -449,7 +451,7 @@ export const StaffTasksView: React.FC = () => {
                     value={taskDueTime}
                     onChange={(e) => setTaskDueTime(e.target.value)}
                     placeholder="14:00"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -461,7 +463,7 @@ export const StaffTasksView: React.FC = () => {
                 <select
                   value={taskAssignedTo}
                   onChange={(e) => setTaskAssignedTo(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                 >
                   <option value="">Unassigned</option>
                   {staff.map((s) => (
@@ -472,17 +474,17 @@ export const StaffTasksView: React.FC = () => {
                 </select>
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsAddTaskOpen(false)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold"
                 >
                   Create Work Order
                 </button>

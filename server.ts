@@ -45,7 +45,24 @@ function getGeminiClient(): GoogleGenAI | null {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+
+  // Security & Cross-Origin headers
+  app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    if (req.headers.origin) {
+      res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    }
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(204);
+    }
+    next();
+  });
 
   app.use(express.json({ limit: "10mb" }));
 
@@ -409,23 +426,31 @@ Recommend shifting 1 evening staff to 3rd floor turnover.`;
 
       res.json({ reply: response.text, source: "gemini" });
     } catch (err: any) {
-      console.error("Gemini chat error:", err);
-      res.status(500).json({
-        error: "Failed to generate AI response",
-        details: err?.message || String(err),
-      });
+      console.warn("Gemini chat error (activating resilient fallback):", err?.message || err);
+      const { message, context = {} } = req.body;
+      let reply = "I am ready to assist with hotel operations. ";
+      const lower = (message || "").toLowerCase();
+      if (lower.includes("brief") || lower.includes("summary") || lower.includes("status")) {
+        reply += `Current Hotel Status: Occupancy is at ${context.occupancyRate || "83%"}, with ${context.todayArrivals || 6} arrivals scheduled today and ${context.pendingTasks || 5} pending housekeeping work orders. VIP guests are arriving in Rooms 401 & Penthouse 502. Recommended priority: Fast-track Room 304 turnover before 14:00 check-in.`;
+      } else if (lower.includes("task") || lower.includes("housekeeping") || lower.includes("priority")) {
+        reply += `Housekeeping Task Optimization:
+1. Room 304 (Deluxe King) - Priority High: Arrival in 2 hours (Mr. Henderson). Assigned to Maria Santos.
+2. Room 208 (Executive Suite) - Priority High: VIP Platinum early check-in.
+3. Penthouse 501 - Routine turnover: Due by 16:00.
+Recommend shifting 1 evening staff to 3rd floor turnover.`;
+      } else if (lower.includes("room") || lower.includes("assign") || lower.includes("book")) {
+        reply += `Room Management Insight: Floor 3 is at 90% occupancy. For incoming VIP guests, Ocean View Suites 401 and 402 offer prime quiet corners. Consider a complimentary upgrade for Gold member Ms. Vance to optimize Standard Queen inventory.`;
+      } else {
+        reply += `I have reviewed the hotel registry. Today we have ${context.todayArrivals || 6} check-ins pending and $${context.todayRevenue || "14,850"} in captured revenue. How can I assist with bookings, staff routing, or guest requests?`;
+      }
+      res.json({ reply, source: "resilient-fallback", notice: "Operating in resilient offline/high-traffic mode." });
     }
   });
 
   // Daily Activity Summary & Intelligence Briefing
   app.post("/api/ai/briefing", async (req, res) => {
-    try {
-      const { hotelState } = req.body;
-      const ai = getGeminiClient();
-
-      if (!ai) {
-        return res.json({
-          summary: `### 🌅 Morning Executive Hotel Briefing
+    const fallbackBriefing = (hotelState: any) => ({
+      summary: `### 🌅 Morning Executive Hotel Briefing
 
 **Occupancy & Revenue:**
 - Current Occupancy: **${hotelState?.occupancyRate || "84%"}** (Target: 80%+)
@@ -442,8 +467,15 @@ Recommend shifting 1 evening staff to 3rd floor turnover.`;
 
 **Revenue Optimization Tip:**
 - Only 3 Deluxe King rooms remain for the weekend. Recommend raising bar rate by +12% on direct channels.`,
-          source: "fallback",
-        });
+      source: "fallback",
+    });
+
+    try {
+      const { hotelState } = req.body;
+      const ai = getGeminiClient();
+
+      if (!ai) {
+        return res.json(fallbackBriefing(hotelState));
       }
 
       const prompt = `Generate an executive daily operational briefing for the Hotel General Manager and Front Desk team.
@@ -464,8 +496,9 @@ Use professional markdown with bolding, bullet points, and high readability.`;
 
       res.json({ summary: response.text, source: "gemini" });
     } catch (err: any) {
-      console.error("Gemini briefing error:", err);
-      res.status(500).json({ error: "Failed to create briefing" });
+      console.warn("Gemini briefing error (activating fallback):", err?.message || err);
+      const { hotelState } = req.body;
+      res.json(fallbackBriefing(hotelState));
     }
   });
 

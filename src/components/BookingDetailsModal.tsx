@@ -83,7 +83,7 @@ export const BookingDetailsModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4"
       onClick={() => setSelectedBookingId(null)}
     >
       <div
@@ -118,21 +118,22 @@ export const BookingDetailsModal: React.FC = () => {
             </span>
             <button
               onClick={() => setSelectedBookingId(null)}
-              className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              className="text-slate-400 hover:text-slate-600 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl"
+              aria-label="Close"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-5 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-4 sm:space-y-5 flex-1">
           {/* Quick Info Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
               <span className="text-[10px] text-slate-400 uppercase font-semibold">Room Assigned</span>
               <div className="text-sm font-bold text-slate-900 mt-0.5">Room {booking.roomNumber}</div>
-              <span className="text-[11px] text-slate-500">{booking.roomType}</span>
+              <span className="text-[11px] text-slate-500 truncate block">{booking.roomType}</span>
             </div>
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -200,7 +201,7 @@ export const BookingDetailsModal: React.FC = () => {
             {booking.paymentStatus !== "Paid" && (
               <button
                 onClick={handleSettleFullFolio}
-                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                className="w-full min-h-[42px] py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
               >
                 <CreditCard className="w-3.5 h-3.5" /> Settle Full Folio (${booking.totalAmount})
               </button>
@@ -209,21 +210,21 @@ export const BookingDetailsModal: React.FC = () => {
 
           {/* AI Guest Communications Tool */}
           <div className="p-4 rounded-xl border border-indigo-200 bg-indigo-50/50 space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-950">
                 <Sparkles className="w-4 h-4 text-indigo-600" />
                 <span>AI Concierge Guest Assistant</span>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-2">
                 <button
                   onClick={() => handleDraftMessage("Pre-Arrival Welcome")}
-                  className="px-2 py-1 rounded bg-white text-indigo-700 hover:bg-indigo-100 text-[11px] font-semibold transition-colors border border-indigo-200"
+                  className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-white text-indigo-700 hover:bg-indigo-100 active:bg-indigo-200 text-xs font-semibold transition-colors border border-indigo-200"
                 >
                   Draft Welcome
                 </button>
                 <button
                   onClick={() => handleDraftMessage("Departure & Folio Invoice")}
-                  className="px-2 py-1 rounded bg-white text-indigo-700 hover:bg-indigo-100 text-[11px] font-semibold transition-colors border border-indigo-200"
+                  className="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-white text-indigo-700 hover:bg-indigo-100 active:bg-indigo-200 text-xs font-semibold transition-colors border border-indigo-200"
                 >
                   Draft Check-out Note
                 </button>
@@ -233,14 +234,14 @@ export const BookingDetailsModal: React.FC = () => {
             {isAiMessageOpen && (
               <div className="bg-white p-3 rounded-xl border border-indigo-100 text-xs space-y-2">
                 {isGeneratingAi ? (
-                  <div className="text-slate-400 italic">Drafting personalized letter with Gemini...</div>
+                  <div className="text-slate-400 italic py-2">Drafting personalized letter with Gemini...</div>
                 ) : (
                   <>
                     <textarea
                       rows={5}
                       value={aiMessageDraft}
                       onChange={(e) => setAiMessageDraft(e.target.value)}
-                      className="w-full p-2 border border-slate-200 rounded-lg text-xs font-sans focus:outline-hidden"
+                      className="w-full p-2.5 border border-slate-200 rounded-lg text-sm sm:text-xs font-sans focus:outline-hidden"
                     />
                     <div className="flex justify-end gap-2">
                       <button
@@ -248,7 +249,7 @@ export const BookingDetailsModal: React.FC = () => {
                           navigator.clipboard.writeText(aiMessageDraft);
                           showToast("Copied letter to clipboard", "info");
                         }}
-                        className="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-[11px]"
+                        className="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs"
                       >
                         Copy Draft
                       </button>
@@ -261,23 +262,23 @@ export const BookingDetailsModal: React.FC = () => {
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
+        <div className="p-4 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
           <div>
             {booking.status === "Confirmed" && (
               <button
                 onClick={() => cancelBooking(booking.id)}
-                className="text-xs text-rose-600 hover:text-rose-800 font-semibold"
+                className="text-xs min-h-[40px] text-rose-600 hover:text-rose-800 font-semibold px-2 py-1"
               >
                 Cancel Reservation
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 w-full sm:w-auto">
             {booking.status === "Confirmed" && (
               <button
                 onClick={() => checkInBooking(booking.id)}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors shadow-xs"
+                className="flex-1 sm:flex-initial min-h-[42px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold transition-colors shadow-xs"
               >
                 Complete Check-In
               </button>
@@ -286,7 +287,7 @@ export const BookingDetailsModal: React.FC = () => {
             {booking.status === "Checked-In" && (
               <button
                 onClick={() => checkOutBooking(booking.id)}
-                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-xs"
+                className="flex-1 sm:flex-initial min-h-[42px] px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-700 text-white text-xs font-semibold transition-colors shadow-xs"
               >
                 Process Check-Out
               </button>
@@ -294,7 +295,7 @@ export const BookingDetailsModal: React.FC = () => {
 
             <button
               onClick={() => setSelectedBookingId(null)}
-              className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-white transition-colors"
+              className="flex-1 sm:flex-initial min-h-[42px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-white active:bg-slate-100 transition-colors"
             >
               Close
             </button>

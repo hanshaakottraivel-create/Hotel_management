@@ -102,7 +102,7 @@ export const GlobalSearchModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-start justify-center pt-20 px-4"
+      className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-start justify-center pt-10 sm:pt-20 px-3 sm:px-4"
       onClick={() => setIsSearchOpen(false)}
     >
       <div
@@ -110,25 +110,33 @@ export const GlobalSearchModal: React.FC = () => {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search input header */}
-        <div className="flex items-center px-4 py-3 border-b border-slate-200">
-          <Search className="w-5 h-5 text-slate-400 mr-3 shrink-0" />
+        <div className="flex items-center px-3 sm:px-4 py-3 border-b border-slate-200">
+          <Search className="w-5 h-5 text-slate-400 mr-2.5 sm:mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search rooms, guests, bookings, staff or orders..."
-            className="w-full text-slate-900 placeholder:text-slate-400 text-sm focus:outline-hidden bg-transparent"
+            placeholder="Search rooms, guests, bookings, staff..."
+            className="w-full text-slate-900 placeholder:text-slate-400 text-sm focus:outline-hidden bg-transparent min-h-[40px]"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="p-1 text-slate-400 hover:text-slate-600 rounded"
+              className="p-2 text-slate-400 hover:text-slate-600 rounded-lg min-h-[40px] min-w-[40px] flex items-center justify-center"
+              aria-label="Clear query"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="ml-2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-500">
+          <button
+            onClick={() => setIsSearchOpen(false)}
+            className="sm:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Close search"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <kbd className="hidden sm:inline-block ml-2 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-500">
             ESC
           </kbd>
         </div>
@@ -145,7 +153,7 @@ export const GlobalSearchModal: React.FC = () => {
                   <button
                     key={chip}
                     onClick={() => setQuery(chip)}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                    className="text-xs min-h-[36px] px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-600 transition-colors"
                   >
                     {chip}
                   </button>
@@ -173,7 +181,7 @@ export const GlobalSearchModal: React.FC = () => {
                           setCurrentTab("rooms");
                           setIsSearchOpen(false);
                         }}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
                       >
                         <div className="flex items-center gap-3">
                           <span className="w-8 h-8 rounded-lg bg-slate-100 font-bold text-xs flex items-center justify-center text-slate-800">
@@ -216,7 +224,7 @@ export const GlobalSearchModal: React.FC = () => {
                           setCurrentTab("bookings");
                           setIsSearchOpen(false);
                         }}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
                       >
                         <div>
                           <div className="text-xs font-semibold text-slate-900">
@@ -253,7 +261,7 @@ export const GlobalSearchModal: React.FC = () => {
                           setCurrentTab("guests");
                           setIsSearchOpen(false);
                         }}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
                       >
                         <div>
                           <div className="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
@@ -287,7 +295,7 @@ export const GlobalSearchModal: React.FC = () => {
                           setCurrentTab("staff");
                           setIsSearchOpen(false);
                         }}
-                        className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
+                        className="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 border border-transparent hover:border-slate-200 cursor-pointer transition-all"
                       >
                         <div>
                           <div className="text-xs font-semibold text-slate-900">{s.name}</div>

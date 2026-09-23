@@ -13,6 +13,7 @@ import {
   Calendar,
   Sparkles,
   Edit,
+  X,
 } from "lucide-react";
 
 export const GuestsView: React.FC = () => {
@@ -110,27 +111,27 @@ export const GuestsView: React.FC = () => {
       {/* Filter and Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         {/* Search */}
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+        <div className="relative flex-1 min-w-[200px] w-full sm:w-auto sm:max-w-sm">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search guest by name, email, phone..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+            className="w-full pl-9 pr-3 py-2 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
           />
         </div>
 
         {/* VIP Tier Pills */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
           {["All", "Platinum", "Gold", "Silver", "Standard"].map((tier) => (
             <button
               key={tier}
               onClick={() => setVipFilter(tier)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 min-h-[38px] rounded-xl text-xs font-medium transition-all ${
                 vipFilter === tier
                   ? "bg-slate-900 text-white shadow-2xs font-semibold"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-600 active:bg-slate-200"
               }`}
             >
               {tier === "All" ? "All Guests" : `${tier} VIP`}
@@ -236,7 +237,7 @@ export const GuestsView: React.FC = () => {
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                 <button
                   onClick={() => setSelectedGuestId(guest.id)}
-                  className="w-full py-1.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full min-h-[42px] py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 text-indigo-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                   <span>View Folio & AI Letter</span>
@@ -250,24 +251,25 @@ export const GuestsView: React.FC = () => {
       {/* Add Guest Modal */}
       {isAddModalOpen && (
         <div
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-150"
           onClick={() => setIsAddModalOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+            className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-4 border-b border-slate-200 flex items-center justify-between">
               <h3 className="font-bold text-sm text-slate-900">Add New Guest Profile</h3>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 text-xs font-semibold"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 active:bg-slate-100 transition-colors"
+                aria-label="Close"
               >
-                Cancel
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateGuest} className="p-4 space-y-3.5">
+            <form onSubmit={handleCreateGuest} className="p-5 space-y-4 overflow-y-auto">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Full Name
@@ -278,11 +280,11 @@ export const GuestsView: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Alexander Hamilton"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Email
@@ -293,7 +295,7 @@ export const GuestsView: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="guest@example.com"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
                 <div>
@@ -306,12 +308,12 @@ export const GuestsView: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+1 (555) 019-200"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     VIP Tier
@@ -319,7 +321,7 @@ export const GuestsView: React.FC = () => {
                   <select
                     value={vipTier}
                     onChange={(e) => setVipTier(e.target.value as VipTier)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden bg-white"
                   >
                     <option value="Standard">Standard</option>
                     <option value="Silver">Silver</option>
@@ -336,7 +338,7 @@ export const GuestsView: React.FC = () => {
                     value={nationality}
                     onChange={(e) => setNationality(e.target.value)}
                     placeholder="e.g. Canada"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                    className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -350,7 +352,7 @@ export const GuestsView: React.FC = () => {
                   value={preferencesStr}
                   onChange={(e) => setPreferencesStr(e.target.value)}
                   placeholder="e.g. Feather-free pillows, High floor, Oat milk"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs min-h-[42px] rounded-xl border border-slate-200 focus:outline-hidden"
                 />
               </div>
 
@@ -363,21 +365,21 @@ export const GuestsView: React.FC = () => {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Special concierge instructions..."
                   rows={2}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden"
+                  className="w-full px-3 py-2.5 text-sm sm:text-xs rounded-xl border border-slate-200 focus:outline-hidden"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold"
+                  className="flex-1 sm:flex-initial min-h-[40px] px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold"
                 >
                   Save Guest
                 </button>

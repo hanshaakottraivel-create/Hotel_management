@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useHotel } from "../context/HotelContext";
+import { PwaInstallPrompt } from "./PwaInstallPrompt";
 import {
   Search,
   Sparkles,
@@ -14,10 +15,11 @@ import {
 } from "lucide-react";
 
 interface NavbarProps {
-  onToggleMobileSidebar: () => void;
+  onToggleMobileSidebar?: () => void;
+  onToggleMobileMenu?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar, onToggleMobileMenu }) => {
   const {
     setIsSearchOpen,
     setIsAiDrawerOpen,
@@ -30,15 +32,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
   } = useHotel();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const handleToggle = onToggleMobileSidebar || onToggleMobileMenu;
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white/95 backdrop-blur px-4 md:px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 border-b border-slate-200 bg-white/95 backdrop-blur-md px-3 sm:px-4 md:px-6 flex items-center justify-between fixed top-0 left-0 right-0 z-30">
       {/* Left: Mobile Toggle & Brand & Quick Stats */}
-      <div className="flex items-center gap-3 md:gap-5">
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
         <button
           id="btn-mobile-menu"
-          onClick={onToggleMobileSidebar}
-          className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+          onClick={handleToggle}
+          className="lg:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
           aria-label="Open sidebar navigation"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,6 +126,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
           <Search className="w-5 h-5" />
         </button>
 
+        {/* PWA Install Button */}
+        <PwaInstallPrompt />
+
         {/* AI Assistant Quick Briefing Button */}
         <button
           id="btn-ai-assistant-navbar"
@@ -139,67 +145,74 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleMobileSidebar }) => {
           <button
             id="btn-notifications"
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className="relative p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+            className="relative p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
             aria-label="Activity Feed"
           >
-            <Bell className="w-4.5 h-4.5" />
+            <Bell className="w-5 h-5" />
             {activities.length > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-indigo-600 ring-2 ring-white"></span>
             )}
           </button>
 
           {isNotificationsOpen && (
-            <div
-              className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-3 z-50 animate-in fade-in zoom-in-95 duration-100"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-                <div className="font-semibold text-sm text-slate-900">Hotel Activity Stream</div>
-                <span className="text-[11px] text-slate-400">Live operational events</span>
-              </div>
-              <div className="max-h-72 overflow-y-auto divide-y divide-slate-50 px-2 py-1">
-                {activities.map((act) => (
-                  <div key={act.id} className="p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-xs flex items-start gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0"></span>
-                    <div className="flex-1">
-                      <p className="text-slate-800 font-medium leading-relaxed">{act.message}</p>
-                      <span className="text-[10px] text-slate-400 mt-0.5 block">{act.timestamp}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="px-4 py-2 bg-slate-50 border-y border-slate-100 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 text-slate-600">
-                  <Database className="w-3.5 h-3.5 text-slate-400" />
-                  <span>DB: <strong className="font-semibold text-slate-800">{dbStatus.connected ? "Supabase PostgreSQL" : "Local PostgreSQL Store"}</strong></span>
+            <>
+              {/* Mobile backdrop to dismiss notification sheet on touch */}
+              <div
+                className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-2xs"
+                onClick={() => setIsNotificationsOpen(false)}
+              />
+              <div
+                className="fixed top-18 right-2 left-2 sm:left-auto sm:right-0 sm:absolute sm:top-full mt-1 sm:mt-2 w-auto sm:w-96 max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 z-50 animate-in fade-in zoom-in-95 duration-100"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="px-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+                  <div className="font-semibold text-sm text-slate-900">Hotel Activity Stream</div>
+                  <span className="text-[11px] text-slate-400">Live operational events</span>
                 </div>
-                <button
-                  onClick={() => syncDatabase()}
-                  className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-medium"
-                >
-                  <RefreshCw className={`w-3 h-3 ${dbStatus.loading ? "animate-spin" : ""}`} />
-                  Sync Now
-                </button>
-              </div>
+                <div className="max-h-72 overflow-y-auto divide-y divide-slate-50 px-2 py-1">
+                  {activities.map((act) => (
+                    <div key={act.id} className="p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-xs flex items-start gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0"></span>
+                      <div className="flex-1">
+                        <p className="text-slate-800 font-medium leading-relaxed">{act.message}</p>
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">{act.timestamp}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-4 py-2 bg-slate-50 border-y border-slate-100 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Database className="w-3.5 h-3.5 text-slate-400" />
+                    <span>DB: <strong className="font-semibold text-slate-800">{dbStatus.connected ? "Supabase PostgreSQL" : "Local PostgreSQL Store"}</strong></span>
+                  </div>
+                  <button
+                    onClick={() => syncDatabase()}
+                    className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-medium"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${dbStatus.loading ? "animate-spin" : ""}`} />
+                    Sync Now
+                  </button>
+                </div>
 
-              <div className="px-4 pt-2 border-t border-slate-100 flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    resetToDemo();
-                    setIsNotificationsOpen(false);
-                  }}
-                  className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1"
-                >
-                  <RotateCcw className="w-3 h-3" /> Reset Demo State
-                </button>
-                <button
-                  onClick={() => setIsNotificationsOpen(false)}
-                  className="text-xs text-indigo-600 font-medium hover:underline"
-                >
-                  Close
-                </button>
+                <div className="px-4 pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <button
+                    onClick={() => {
+                      resetToDemo();
+                      setIsNotificationsOpen(false);
+                    }}
+                    className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1"
+                  >
+                    <RotateCcw className="w-3 h-3" /> Reset Demo State
+                  </button>
+                  <button
+                    onClick={() => setIsNotificationsOpen(false)}
+                    className="text-xs text-indigo-600 font-medium hover:underline p-1"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 

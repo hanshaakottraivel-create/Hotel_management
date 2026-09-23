@@ -8,10 +8,10 @@ export const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto sm:right-5 sm:bottom-5 z-50 flex flex-col gap-2 max-w-md pointer-events-none">
       {toasts.map((toast) => {
         let Icon = CheckCircle2;
-        let colorClass = "bg-slate-900 text-white border-slate-700";
+        let colorClass = "bg-slate-900/95 text-white border-slate-700/80";
         let iconColor = "text-emerald-400";
 
         if (toast.type === "error") {
@@ -29,18 +29,18 @@ export const ToastContainer: React.FC = () => {
           <div
             key={toast.id}
             id={`toast-${toast.id}`}
-            className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl border shadow-lg backdrop-blur-md transition-all ${colorClass}`}
+            className={`pointer-events-auto flex items-center justify-between p-3.5 rounded-xl border shadow-xl backdrop-blur-md transition-all animate-in slide-in-from-bottom-2 ${colorClass}`}
           >
-            <div className="flex items-center gap-2.5 text-sm font-medium">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm font-medium">
               <Icon className={`w-4 h-4 shrink-0 ${iconColor}`} />
-              <span>{toast.message}</span>
+              <span className="leading-snug">{toast.message}</span>
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="ml-3 text-slate-400 hover:text-white p-1 rounded transition-colors"
+              className="ml-3 text-slate-400 hover:text-white p-2 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg transition-colors shrink-0"
               aria-label="Close notification"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         );

@@ -6,3 +6,11 @@ coverage/
 *.log
 .env*
 !.env.example
+*.local
+.vscode/
+.idea/
+*.pem
+*.key
+credentials.json
+service-account*.json
+.npm/
