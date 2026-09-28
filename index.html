@@ -17,6 +17,30 @@
     <meta property="og:description" content="A modern AI-powered Hotel Management System for managing rooms, bookings, guests, staff, payments, availability, and smart operations." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Initialize React Fast Refresh preamble stubs synchronously so components never throw preamble detection errors
+      window.$RefreshReg$ = window.$RefreshReg$ || function() {};
+      window.$RefreshSig$ = window.$RefreshSig$ || function() { return function(type) { return type; }; };
+      window.__vite_plugin_react_preamble_installed__ = true;
+
+      // Suppress benign Vite dev WebSocket connection notices in AI Studio preview iframe
+      (function() {
+        const _warn = console.warn;
+        const _err = console.error;
+        console.warn = function(...args) {
+          if (typeof args[0] === 'string' && args[0].includes('[vite]')) return;
+          _warn.apply(console, args);
+        };
+        console.error = function(...args) {
+          if (typeof args[0] === 'string' && (
+            args[0].includes('[vite] failed to connect to websocket') ||
+            args[0].includes('[vite] Direct websocket connection fallback') ||
+            args[0].includes("can't detect preamble")
+          )) return;
+          _err.apply(console, args);
+        };
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

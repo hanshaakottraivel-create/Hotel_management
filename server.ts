@@ -1,8 +1,19 @@
+import http from "node:http";
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+
+async function callWithTimeout<T>(promise: Promise<T>, timeoutMs = 7000): Promise<T> {
+  let timeoutId: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`AI service timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    clearTimeout(timeoutId);
+  });
+}
 import {
   getSupabase,
   ensureDatabaseSeeded,
@@ -45,6 +56,7 @@ function getGeminiClient(): GoogleGenAI | null {
 
 async function startServer() {
   const app = express();
+  const server = http.createServer(app);
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   // Security & Cross-Origin headers
@@ -415,14 +427,17 @@ Recommend shifting 1 evening staff to 3rd floor turnover.`;
         },
       ];
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents,
-        config: {
-          systemInstruction: systemPrompt,
-          temperature: 0.7,
-        },
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents,
+          config: {
+            systemInstruction: systemPrompt,
+            temperature: 0.7,
+          },
+        }),
+        7000
+      );
 
       res.json({ reply: response.text, source: "gemini" });
     } catch (err: any) {
@@ -489,10 +504,13 @@ Provide:
 4. Revenue & Upselling Action Points for the Front Desk team today.
 Use professional markdown with bolding, bullet points, and high readability.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+        }),
+        7000
+      );
 
       res.json({ summary: response.text, source: "gemini" });
     } catch (err: any) {
@@ -556,13 +574,16 @@ Return a valid JSON response with this exact structure:
   "advice": "1-2 sentences of operational dispatch guidance for the shift manager"
 }`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        },
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+          },
+        }),
+        7000
+      );
 
       const parsed = JSON.parse(response.text?.trim() || "{}");
       res.json(parsed);
@@ -624,10 +645,13 @@ Reservation: ${reservationId || "RES-8921"}
 
 Keep the tone warm, refined, hospitable, and concise.`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+        }),
+        7000
+      );
 
       res.json({ message: response.text, source: "gemini" });
     } catch (err: any) {
@@ -840,14 +864,17 @@ Respond with this exact JSON format:
   "strategicAdvice": "Strategic guidance..."
 }`;
 
-      const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-          temperature: 0.4,
-        },
-      });
+      const response = await callWithTimeout(
+        ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+            temperature: 0.4,
+          },
+        }),
+        7000
+      );
 
       try {
         const parsed = JSON.parse(response.text?.trim() || "{}");
@@ -892,7 +919,10 @@ Respond with this exact JSON format:
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: { server },
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);
@@ -904,7 +934,7 @@ Respond with this exact JSON format:
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  server.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
     // Background check to seed Supabase database if connected and empty
     ensureDatabaseSeeded().then((res) => {
